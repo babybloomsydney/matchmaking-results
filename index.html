@@ -8,9 +8,9 @@
         /* --- 1. CORE STYLING --- */
         :root {
             --primary: #4A90E2; 
+            --metric-text: #2c3e50;
+            --label-text: #95a5a6;
             --bg: #F5F7FA;
-            --text: #333;
-            --text-light: #666;
             --card-bg: #ffffff;
             --border: #e1e4e8;
         }
@@ -18,20 +18,20 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
+            color: #333;
             margin: 0;
             padding: 20px;
         }
 
         .container {
-            max-width: 800px; /* Narrower container for a streamlined look */
+            max-width: 850px;
             margin: 0 auto;
         }
 
-        h1 { font-size: 1.5rem; color: #2c3e50; margin-bottom: 5px; text-align: center; }
-        p.subtitle { color: #7f8c8d; margin-top: 0; margin-bottom: 30px; text-align: center; font-size: 0.9rem; }
+        h1 { font-size: 1.6rem; color: #2c3e50; margin: 0 0 5px 0; text-align: center; }
+        p.subtitle { color: #7f8c8d; margin-top: 0; margin-bottom: 30px; text-align: center; font-size: 0.95rem; }
 
-        /* --- 2. LOADING --- */
+        /* --- 2. LOADING & ERROR --- */
         #loading-state { text-align: center; padding-top: 50px; }
         .spinner {
             border: 3px solid #e1e4e8;
@@ -42,98 +42,111 @@
             margin: 0 auto 15px auto;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* --- 3. ERROR --- */
         #error-state { display: none; background: #fadbd8; color: #c0392b; padding: 15px; border-radius: 8px; text-align: center; }
 
-        /* --- 4. LIST LAYOUT (Rows) --- */
+        /* --- 3. LIST CONTAINER --- */
         #results-list {
             display: none;
             flex-direction: column;
-            gap: 12px; /* Space between rows */
+            gap: 15px;
         }
 
-        /* --- 5. COMPACT CARD --- */
+        /* --- 4. THE ROW CARD --- */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 10px; /* Softer corners */
-            padding: 12px 15px;
+            border-radius: 12px;
+            padding: 15px 20px;
             display: flex;
-            align-items: center; /* Vertically center content */
+            align-items: center;
             justify-content: space-between;
-            transition: transform 0.1s, box-shadow 0.1s;
             text-decoration: none;
             color: inherit;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            flex-wrap: wrap; /* Allows wrapping on tiny screens */
+            gap: 15px;
         }
 
         .card:hover {
             border-color: var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transform: translateX(2px); /* Subtle nudge */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
         }
 
-        /* LEFT: Image */
-        .card-left {
+        /* --- LEFT: IDENTITY (Pic + Name + Match Badge) --- */
+        .identity-group {
             display: flex;
             align-items: center;
             gap: 15px;
-            flex: 1; /* Takes up remaining space */
+            flex: 2; /* Takes up most space */
+            min-width: 200px;
         }
 
         .profile-pic {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             object-fit: cover;
-            border: 1px solid #ddd;
-            flex-shrink: 0;
+            border: 2px solid #f0f0f0;
         }
 
-        /* CENTER: Text Info */
-        .info-block {
-            display: flex;
-            flex-direction: column;
-            gap: 4px; /* Space between Line 1 and Line 2 */
-        }
-
-        /* Line 1 Styling */
-        .line-1 {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #222;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
+        .name-block { display: flex; flex-direction: column; gap: 4px; }
+        
+        .nanny-name { 
+            font-size: 1.1rem; 
+            font-weight: 700; 
+            color: #2c3e50; 
         }
 
         .match-badge {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #27ae60; /* Green */
+            background-color: #e8f8f5; 
+            color: #27ae60; 
+            padding: 3px 10px; 
+            border-radius: 12px; 
+            font-size: 0.8rem; 
+            font-weight: bold;
+            display: inline-block;
+            width: fit-content;
         }
 
-        /* Line 2 Styling */
-        .line-2 {
-            font-size: 0.85rem;
-            color: #666;
-            line-height: 1.4;
+        /* --- CENTER: METRICS (The styled boxes) --- */
+        .metrics-group {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex: 3;
+            justify-content: center; /* Center them in the middle space */
         }
 
-        .star-rank {
-            color: #e67e22; /* Orange for the star/rank */
-            font-weight: 500;
+        .metric-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
         }
 
-        /* RIGHT: Button (Desktop) / Arrow (Mobile) */
-        .card-right {
-            margin-left: 10px;
+        .metric-val {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--metric-text);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--label-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* --- RIGHT: ACTION (Arrow) --- */
+        .action-group {
+            flex: 0;
         }
 
         .btn-arrow {
-            width: 32px;
-            height: 32px;
+            width: 35px;
+            height: 35px;
             background: #f0f2f5;
             border-radius: 50%;
             display: flex;
@@ -141,13 +154,16 @@
             justify-content: center;
             color: var(--primary);
             font-weight: bold;
+            transition: background 0.2s;
         }
+        .card:hover .btn-arrow { background: var(--primary); color: white; }
 
-        /* Mobile Optimization */
-        @media (max-width: 480px) {
-            .line-1 { font-size: 0.95rem; }
-            .line-2 { font-size: 0.75rem; }
-            .profile-pic { width: 45px; height: 45px; }
+        /* --- MOBILE TWEAKS --- */
+        @media (max-width: 600px) {
+            .card { align-items: flex-start; }
+            .identity-group { width: 100%; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 5px; }
+            .metrics-group { width: 100%; justify-content: space-between; gap: 10px; }
+            .action-group { display: none; } /* Hide arrow on mobile to save space */
         }
 
     </style>
@@ -156,7 +172,7 @@
 
 <div class="container">
     <h1>Your Nanny Matches</h1>
-    <p class="subtitle">Select a profile to view full details</p>
+    <p class="subtitle">Tap a profile to view full details</p>
 
     <div id="loading-state">
         <div class="spinner"></div>
@@ -170,10 +186,10 @@
 
 <script>
     // ================= CONFIGURATION =================
-    // Paste your deployed Web App URL here:
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycby-lkqrQjIUzEnmzl6vyMf8cKwsYdTU7ke5rqgm_c5GYKRMBhdyyW2Hiw98yDKbPI0Mpg/exec";
+    // Your NEW Deployment URL
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzj2SuqYs0YD3KdAlhtdzrh3tayRPF2y2Syn5dfPSMsgaKCV3FtNPIEGshJPZUKjwDMUg/exec";
     
-    // Where the click should go
+    // The link destination
     const PROFILE_LINK = "https://babybloomsydney.com.au/nannies"; 
     // =================================================
 
@@ -219,32 +235,35 @@
             card.className = 'card';
             card.href = PROFILE_LINK; 
             
-            const imgUrl = nanny.pp ? nanny.pp : "https://via.placeholder.com/50?text=IMG";
+            const imgUrl = nanny.pp ? nanny.pp : "https://via.placeholder.com/60?text=IMG";
             const name = nanny.fn || "Nanny";
-            const age = nanny.ag ? nanny.ag : ""; // Handle missing age
+            const age = nanny.ag ? `, ${nanny.ag}` : ""; 
             
-            // Format: "Faith, 24, 93% Match"
-            // Note: We only add the comma before age if age exists
-            const line1HTML = `
-                ${name}${age ? `, ${age}` : ''}, 
-                <span class="match-badge">${nanny.s}% Match</span>
-            `;
-
-            // Format: "100% availability, 2km from you, 9.5⭐ Exceeds Requirement"
-            const line2HTML = `
-                ${nanny.a}% availability, ${nanny.d}km from you, 
-                <span class="star-rank">${nanny.b}⭐ Exceeds Requirement</span>
-            `;
-
             card.innerHTML = `
-                <div class="card-left">
+                <div class="identity-group">
                     <img src="${imgUrl}" alt="${name}" class="profile-pic">
-                    <div class="info-block">
-                        <div class="line-1">${line1HTML}</div>
-                        <div class="line-2">${line2HTML}</div>
+                    <div class="name-block">
+                        <div class="nanny-name">${name}${age}</div>
+                        <div class="match-badge">${nanny.s}% Match</div>
                     </div>
                 </div>
-                <div class="card-right">
+
+                <div class="metrics-group">
+                    <div class="metric-box">
+                        <div class="metric-val">${nanny.a}%</div>
+                        <div class="metric-label">Avail</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val">${nanny.d}km</div>
+                        <div class="metric-label">Dist</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val">${nanny.b}</div>
+                        <div class="metric-label">Rank</div>
+                    </div>
+                </div>
+
+                <div class="action-group">
                     <div class="btn-arrow">&rarr;</div>
                 </div>
             `;
