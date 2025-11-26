@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Bloom - Nanny Matches</title>
+    <style>
+        /* --- 1. CORE STYLING --- */
+        :root {
+            --primary: #4A90E2; /* Soft Blue */
+            --secondary: #50E3C2; /* Teal/Green for scores */
+            --bg: #F5F7FA;
+            --text: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 { color: #2c3e50; margin-bottom: 5px; }
+        p.subtitle { color: #7f8c8d; margin-top: 0; margin-bottom: 40px; }
+
+        /* --- 2. LOADING STATE --- */
+        #loading-state {
+            display: flex; /* Hidden by JS later */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 50vh;
+        }
+
+        .spinner {
+            border: 4px solid #e1e4e8;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .loading-text {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* --- 3. ERROR STATE --- */
+        #error-state {
+            display: none;
+            background-color: #fadbd8;
+            color: #c0392b;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        /* --- 4. RESULTS GRID --- */
+        #results-grid {
+            display: none; /* Hidden until loaded */
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding-bottom: 50px;
+        }
+
+        /* --- 5. NANNY CARD --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+
+        .card-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-pic {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #eee;
+            margin-right: 15px;
+        }
+
+        .nanny-info { text-align: left; }
+        .nanny-name { font-size: 1.25rem; font-weight: bold; margin: 0; }
+        .match-badge { 
+            display: inline-block;
+            background-color: #e8f8f5; 
+            color: #27ae60; 
+            padding: 4px 10px; 
+            border-radius: 15px; 
+            font-size: 0.85rem; 
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* METRICS GRID INSIDE CARD */
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding: 15px;
+            background-color: #fafafa;
+            gap: 10px;
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+        .metric-val { font-weight: bold; font-size: 1.1rem; color: #333; }
+        .metric-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* BUTTON AREA */
+        .card-footer {
+            padding: 15px;
+            margin-top: auto; /* Pushes button to bottom */
+        }
+
+        .view-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .view-btn:hover { background-color: #357abd; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Baby Bloom Sydney</h1>
+    <p class="subtitle">Your top nanny matches</p>
+
+    <div id="loading-state">
+        <div class="spinner"></div>
+        <div class="loading-text">Finding your perfect matches...</div>
+    </div>
+
+    <div id="error-state"></div>
+
+    <div id="results-grid"></div>
+</div>
+
+<script>
+    // ================= CONFIGURATION =================
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycby-lkqrQjIUzEnmzl6vyMf8cKwsYdTU7ke5rqgm_c5GYKRMBhdyyW2Hiw98yDKbPI0Mpg/exec";
+    
+    // Placeholder link as requested
+    const PROFILE_LINK = "https://babybloomsydney.com.au/nannies"; 
+    // =================================================
+
+    // Run when page loads
+    window.addEventListener('DOMContentLoaded', async () => {
+        
+        // 1. Get Contact ID from URL
+        const params = new URLSearchParams(window.location.search);
+        const contactId = params.get('cid');
+        const isTest = params.get('mode') === 'test';
+
+        // 2. Validate ID
+        if (!contactId) {
+            showError("No Contact ID found. Please check the link in your email.");
+            return;
+        }
+
+        // 3. Prepare Payload
+        const payload = {
+            "contactId": contactId,
+            "action": "MM",
+            "mode": isTest ? "test" : "prod"
+        };
+
+        try {
+            // 4. Fetch Data
+            // We use 'text/plain' to bypass CORS preflight checks on GitHub Pages
+            const response = await fetch(GAS_ENDPOINT, {
+                method: "POST",
+                redirect: "follow",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            // 5. Check for script errors
+            if (data.error) {
+                showError("System Message: " + data.error);
+                return;
+            }
+
+            // 6. Render
+            renderNannies(data);
+
+        } catch (err) {
+            console.error(err);
+            showError("We encountered a connection issue. Please refresh the page.");
+        }
+    });
+
+    function renderNannies(data) {
+        const grid = document.getElementById('results-grid');
+        const loader = document.getElementById('loading-state');
+        
+        // Hide loader
+        loader.style.display = 'none';
+
+        // Handle empty results
+        // Checks 'i', 'matches', or 'items' depending on your exact script version
+        const list = data.i || data.matches || data.items || [];
+        
+        if (list.length === 0) {
+            showError("We couldn't find any matches meeting your criteria at this time.");
+            return;
+        }
+
+        // Generate Cards
+        list.forEach(nanny => {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            // Fallback for missing profile pic
+            const imgUrl = nanny.pp ? nanny.pp : "https://via.placeholder.com/70?text=IMG";
+            // Clean up name (Just first name usually)
+            const name = nanny.fn || "Nanny";
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <img src="${imgUrl}" alt="${name}" class="profile-pic">
+                    <div class="nanny-info">
+                        <div class="nanny-name">${name}</div>
+                        <div class="match-badge">${nanny.s} Match</div>
+                    </div>
+                </div>
+
+                <div class="metrics">
+                    <div class="metric-item">
+                        <div class="metric-val">${nanny.a}%</div>
+                        <div class="metric-label">Avail</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-val">${nanny.d} km</div>
+                        <div class="metric-label">Dist</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-val">${nanny.b}/10</div>
+                        <div class="metric-label">Rank</div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <a href="${PROFILE_LINK}" class="view-btn">View Profile</a>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // Reveal Grid
+        grid.style.display = 'grid';
+    }
+
+    function showError(msg) {
+        document.getElementById('loading-state').style.display = 'none';
+        const errDiv = document.getElementById('error-state');
+        errDiv.innerText = msg;
+        errDiv.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
