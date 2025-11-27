@@ -3,198 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nanny Profile Card</title>
+    <title>Baby Bloom Matches</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- RESET & BASE STYLES --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        /* --- 1. DESIGN SYSTEM --- */
+        :root {
+            --primary: #FF8FAB; 
+            --secondary: #4A90E2; /* The Blue from your image */
+            --secondary-hover: #357abd;
+            --bg: #F9FAFC;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --success: #27ae60; /* Green match color */
+            --success-bg: #ebfaf0;
+            --star: #f39c12;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fa; /* Light grey background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: 'Poppins', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
             padding: 20px;
         }
 
-        /* --- CARD CONTAINER --- */
-        .nanny-card {
-            background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            padding: 24px;
-            width: 100%;
-            max-width: 420px; /* Fixed width for desktop */
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
+        .container {
+            max-width: 600px; /* Constrained width to keep cards looking like the image on desktop */
+            margin: 0 auto;
         }
 
-        /* --- TOP SECTION: PHOTO & INFO --- */
+        /* --- 2. HEADER & SORTING --- */
+        .header-area {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 { margin: 0; font-size: 1.8rem; color: var(--text-main); font-weight: 700; }
+        .subtitle { color: var(--text-sub); margin: 5px 0 20px 0; font-size: 1rem; }
+
+        /* The Slider Sort Bar - Fixed for Mobile & Desktop */
+        .sort-wrapper {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 10px;
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch;
+            /* Center on desktop, start on mobile */
+            justify-content: flex-start; 
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .sort-wrapper::-webkit-scrollbar { display: none; }
+        .sort-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @media (min-width: 600px) {
+            .sort-wrapper { justify-content: center; }
+        }
+        
+        .sort-btn {
+            background: white;
+            border: 1px solid #e1e4e8;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            flex-shrink: 0; /* Prevents squishing on mobile */
+        }
+
+        .sort-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(255, 143, 171, 0.4);
+        }
+
+        /* --- 3. LOADING & ERROR --- */
+        #loading-state { text-align: center; margin-top: 50px; }
+        .spinner {
+            border: 4px solid #eee;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #error-state { display: none; background: #fadbd8; color: #c0392b; padding: 15px; border-radius: 8px; text-align: center; }
+
+        /* --- 4. THE CARD (Exact Match to Image) --- */
+        #results-list {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid transparent;
+            position: relative; /* For absolute positioning of Rate */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Top Section: Image + Info */
         .card-top {
             display: flex;
             align-items: flex-start;
             gap: 20px;
-            position: relative;
         }
 
-        /* PROFILE PICTURE */
-        .profile-pic-container {
-            flex-shrink: 0;
-            position: relative;
-        }
-
+        /* Profile Pic */
         .profile-pic {
-            width: 110px;
-            height: 110px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #ffffff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
 
-        /* INFO BLOCK */
-        .info-block {
-            flex-grow: 1;
+        /* Info Block */
+        .card-info {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
+            padding-top: 5px; /* slight offset to align with image top */
+            width: 100%;
         }
 
-        /* HOURLY RATE (Top Right) */
-        .rate {
+        /* Rate (Absolute Top Right) */
+        .rate-text {
             position: absolute;
-            top: 0;
-            right: 0;
-            font-weight: 700;
+            top: 24px;
+            right: 24px;
             font-size: 1.1rem;
-            color: #2c3e50;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
-        /* NAME & AGE */
-        .name-age {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #2c3e50;
+        /* Name Row */
+        .name-row {
             display: flex;
             align-items: center;
-            flex-wrap: wrap;
             gap: 10px;
-            margin-top: 25px; /* Push down to clear the rate */
+            flex-wrap: wrap;
+            padding-right: 60px; /* Prevent name overlapping the absolute Rate */
+        }
+        
+        .nanny-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
         }
 
-        /* MATCH BADGE */
         .match-badge {
-            background-color: #d4f7e3; /* Light Green */
-            color: #219653; /* Darker Green */
-            font-size: 0.85rem;
+            background-color: var(--success-bg);
+            color: var(--success);
+            font-size: 0.8rem;
             font-weight: 700;
             padding: 4px 10px;
             border-radius: 12px;
-            display: inline-block;
         }
 
-        /* RANK (Star + Text) */
-        .rank {
+        /* Rank Row */
+        .rank-row {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
+            color: var(--star);
             font-weight: 600;
-            color: #f2994a; /* Gold/Orange */
-            font-size: 1rem;
-        }
-
-        .star-icon {
-            font-size: 1.2rem;
-            /* Using an emoji for simplicity, can be replaced with an SVG */
-        }
-
-        /* DETAILS (Distance & Availability) */
-        .details {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            color: #7f8c8d; /* Grey text */
             font-size: 0.95rem;
-            margin-top: 4px;
+            margin-bottom: 2px;
         }
 
-        /* --- BUTTON --- */
+        /* Details Row */
+        .details-block {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Bottom Section: Button */
         .view-btn {
-            width: 100%;
-            background-color: #4a90e2; /* Blue */
+            background-color: var(--secondary);
             color: white;
-            border: none;
+            text-align: center;
             padding: 14px;
             border-radius: 12px;
-            font-size: 1.05rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            text-align: center;
+            font-size: 1rem;
             text-decoration: none;
+            width: 100%;
+            display: block;
+            box-sizing: border-box;
+            transition: background 0.2s;
         }
 
-        .view-btn:hover {
-            background-color: #357abd;
+        .view-btn:hover { background-color: var(--secondary-hover); }
+
+        /* Responsive Adjustments for Mobile */
+        @media (max-width: 480px) {
+            .profile-pic { width: 80px; height: 80px; }
+            .rate-text { font-size: 1rem; top: 20px; right: 20px; }
+            .card { padding: 20px; }
+            .nanny-name { font-size: 1.1rem; }
+            /* On very small screens, let the rate flow normally if needed, but absolute is requested */
         }
 
-        /* --- RESPONSIVE TWEAKS --- */
-        /* Ensure it looks good on smaller phones */
-        @media (max-width: 380px) {
-            .nanny-card {
-                padding: 20px;
-            }
-            .profile-pic {
-                width: 90px;
-                height: 90px;
-            }
-            .name-age {
-                font-size: 1.25rem;
-                margin-top: 20px;
-            }
-            .rate {
-                font-size: 1rem;
-            }
-        }
     </style>
 </head>
 <body>
 
-    <div class="nanny-card">
-        <div class="card-top">
-            <div class="profile-pic-container">
-                <img src="https://i.imgur.com/8Q5X8Q1.png" alt="Maya" class="profile-pic">
-            </div>
-
-            <div class="info-block">
-                <div class="rate">$49/hr</div>
-                
-                <div class="name-age">
-                    Maya, 39
-                    <span class="match-badge">91% Match</span>
-                </div>
-                
-                <div class="rank">
-                    <span class="star-icon">⭐</span>
-                    10 Exceeds Requirement
-                </div>
-                
-                <div class="details">
-                    <div>8.3km from you</div>
-                    <div>100% availability</div>
-                </div>
-            </div>
+<div class="container">
+    <div class="header-area">
+        <h1 id="header-title">Your Matches</h1>
+        <p class="subtitle">We found the best nannies for your family</p>
+        
+        <div class="sort-wrapper">
+            <button class="sort-btn active" onclick="sortData('match')">Overall Match</button>
+            <button class="sort-btn" onclick="sortData('avail')">Availability</button>
+            <button class="sort-btn" onclick="sortData('dist')">Distance</button>
+            <button class="sort-btn" onclick="sortData('rate')">Rate ($)</button>
+            <button class="sort-btn" onclick="sortData('rank')">⭐ Rank</button>
         </div>
-
-        <a href="#" class="view-btn">View Profile</a>
     </div>
+
+    <div id="loading-state">
+        <div class="spinner"></div>
+        <div>Calculating scores...</div>
+    </div>
+    <div id="error-state"></div>
+
+    <div id="results-list"></div>
+</div>
+
+<script>
+    // ================= SETTINGS =================
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzj2SuqYs0YD3KdAlhtdzrh3tayRPF2y2Syn5dfPSMsgaKCV3FtNPIEGshJPZUKjwDMUg/exec";
+    const PROFILE_BASE = "https://babybloomsydney.com.au/nannies";
+    // ============================================
+
+    // Store data globally so we can sort without re-fetching
+    let globalNannies = [];
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const params = new URLSearchParams(window.location.search);
+        const cid = params.get('cid');
+        const mode = params.get('mode');
+
+        if (!cid) { showError("No Contact ID found."); return; }
+
+        try {
+            const resp = await fetch(GAS_URL, {
+                method: "POST",
+                redirect: "follow",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ "contactId": cid, "action": "MM", "mode": mode })
+            });
+            const data = await resp.json();
+
+            if (data.error) { showError(data.error); return; }
+
+            // Normalize data structure
+            globalNannies = data.i || data.matches || data.items || [];
+            
+            if (globalNannies.length === 0) { showError("No matches found."); return; }
+
+            // Update Header Count
+            document.getElementById('header-title').innerText = `Your Top ${globalNannies.length} Matches`;
+
+            // Initial Render
+            renderNannies(globalNannies);
+
+        } catch (e) {
+            showError("Connection error. Please refresh.");
+        }
+    });
+
+    // --- SORTING LOGIC ---
+    function sortData(criteria) {
+        // Visual: Update active button
+        document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Logic: Sort the global array
+        let sorted = [...globalNannies]; 
+        
+        // Helper to convert rate strings like "$35.00" to number 35.00
+        const getPrice = (v) => parseFloat(String(v).replace(/[^0-9.]/g, '')) || 0;
+
+        if (criteria === 'match') {
+            sorted.sort((a, b) => b.s - a.s); 
+        } else if (criteria === 'avail') {
+            sorted.sort((a, b) => b.a - a.a); 
+        } else if (criteria === 'dist') {
+            sorted.sort((a, b) => a.d - b.d); 
+        } else if (criteria === 'rate') {
+            sorted.sort((a, b) => getPrice(a.r) - getPrice(b.r)); 
+        } else if (criteria === 'rank') {
+            sorted.sort((a, b) => b.b - a.b); 
+        }
+
+        renderNannies(sorted);
+    }
+
+    // --- RENDERING ---
+    function renderNannies(list) {
+        const container = document.getElementById('results-list');
+        const loader = document.getElementById('loading-state');
+        
+        loader.style.display = 'none';
+        container.innerHTML = ""; 
+        
+        list.forEach(n => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const img = n.pp ? n.pp : "https://via.placeholder.com/100?text=IMG";
+            const name = n.fn || "Nanny";
+            const age = n.ag ? `, ${n.ag}` : "";
+            
+            // Logic: Rate processing
+            const rawRate = String(n.r || "");
+            const cleanRate = rawRate.replace('$', ''); 
+            const rateStr = cleanRate ? `$${cleanRate}/hr` : "";
+
+            // --- HTML STRUCTURE ---
+            card.innerHTML = `
+                <div class="card-top">
+                    <img src="${img}" alt="${name}" class="profile-pic">
+                    
+                    <div class="card-info">
+                        <div class="name-row">
+                            <span class="nanny-name">${name}${age}</span>
+                            <span class="match-badge">${n.s}% Match</span>
+                        </div>
+
+                        <div class="rank-row">
+                            ${n.b}⭐ Exceeds Requirement
+                        </div>
+
+                        <div class="details-block">
+                            <div>${n.d}km from you</div>
+                            <div>${n.a}% availability</div>
+                        </div>
+                    </div>
+                    
+                    <div class="rate-text">${rateStr}</div>
+                </div>
+
+                <a href="${PROFILE_BASE}" class="view-btn">View Profile</a>
+            `;
+            container.appendChild(card);
+        });
+
+        container.style.display = 'flex';
+    }
+
+    function showError(msg) {
+        document.getElementById('loading-state').style.display = 'none';
+        const el = document.getElementById('error-state');
+        el.innerText = msg;
+        el.style.display = 'block';
+    }
+</script>
 
 </body>
 </html>
