@@ -3,359 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby Bloom Matches</title>
+    <title>Nanny Profile Card</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 1. DESIGN SYSTEM --- */
-        :root {
-            --primary: #FF8FAB; /* Baby Bloom Pink/Red */
-            --primary-hover: #fa7da0;
-            --secondary: #4A90E2; /* Soft Blue for Trust */
-            --bg: #F9FAFC;
-            --card-bg: #ffffff;
-            --text-main: #2c3e50;
-            --text-sub: #7f8c8d;
-            --success: #27ae60;
-            --star: #f39c12;
+        /* --- RESET & BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        /* --- 2. HEADER & SORTING --- */
-        .header-area {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        h1 { margin: 0; font-size: 1.8rem; color: var(--text-main); }
-        .subtitle { color: var(--text-sub); margin: 5px 0 20px 0; font-size: 1rem; }
-
-        /* The Slider Sort Bar */
-        .sort-wrapper {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa; /* Light grey background */
             display: flex;
             justify-content: center;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
-        }
-        
-        .sort-btn {
-            background: white;
-            border: 1px solid #e1e4e8;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-sub);
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        }
-
-        .sort-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 10px rgba(255, 143, 171, 0.4);
-        }
-
-        /* --- 3. LOADING & ERROR --- */
-        #loading-state { text-align: center; margin-top: 50px; }
-        .spinner {
-            border: 4px solid #eee;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 40px; height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #error-state { display: none; background: #fadbd8; color: #c0392b; padding: 15px; border-radius: 8px; text-align: center; }
-
-        /* --- 4. THE CARD (Unified View) --- */
-        #results-list {
-            display: none;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
+            align-items: center;
+            min-height: 100vh;
             padding: 20px;
+        }
+
+        /* --- CARD CONTAINER --- */
+        .nanny-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+            width: 100%;
+            max-width: 420px; /* Fixed width for desktop */
             display: flex;
-            align-items: center; /* Aligns items vertically in the center */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            transition: transform 0.2s;
-            border: 1px solid transparent;
+            flex-direction: column;
+            gap: 24px;
         }
 
-        .card:hover {
-            transform: translateY(-3px);
-            border-color: var(--primary);
+        /* --- TOP SECTION: PHOTO & INFO --- */
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            position: relative;
         }
 
-        /* Left: Image */
+        /* PROFILE PICTURE */
+        .profile-pic-container {
+            flex-shrink: 0;
+            position: relative;
+        }
+
         .profile-pic {
-            width: 70px;
-            height: 70px;
+            width: 110px;
+            height: 110px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-right: 20px;
-            flex-shrink: 0;
+            border: 4px solid #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        /* Middle: Content */
-        .card-content {
-            flex-grow: 1; /* Takes up all remaining space */
+        /* INFO BLOCK */
+        .info-block {
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
 
-        /* Line 1: Name, Age, Match */
-        .line-primary {
-            font-size: 1.1rem;
+        /* HOURLY RATE (Top Right) */
+        .rate {
+            position: absolute;
+            top: 0;
+            right: 0;
             font-weight: 700;
-            color: var(--text-main);
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        /* NAME & AGE */
+        .name-age {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2c3e50;
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
+            margin-top: 25px; /* Push down to clear the rate */
         }
 
-        .match-tag {
-            background-color: #ebfaf0;
-            color: var(--success);
-            font-size: 0.8rem;
-            padding: 2px 8px;
-            border-radius: 6px;
+        /* MATCH BADGE */
+        .match-badge {
+            background-color: #d4f7e3; /* Light Green */
+            color: #219653; /* Darker Green */
+            font-size: 0.85rem;
             font-weight: 700;
-        }
-
-        /* Line 2: The Details (Avail, Dist, Rate, Rank) */
-        .line-secondary {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-            line-height: 1.5;
-        }
-
-        .highlight-rank {
-            color: var(--star);
-            font-weight: 600;
-        }
-        
-        .highlight-rate {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
-        /* Right: Button */
-        .card-action {
-            margin-left: 15px;
-            flex-shrink: 0;
-        }
-
-        .view-btn {
-            background-color: var(--secondary);
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
+            padding: 4px 10px;
+            border-radius: 12px;
             display: inline-block;
-            transition: background 0.2s;
-            white-space: nowrap;
         }
 
-        .view-btn:hover { background-color: #357abd; }
+        /* RANK (Star + Text) */
+        .rank {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #f2994a; /* Gold/Orange */
+            font-size: 1rem;
+        }
 
-        /* --- MOBILE RESPONSIVENESS --- */
-        @media (max-width: 600px) {
-            .card {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 15px;
+        .star-icon {
+            font-size: 1.2rem;
+            /* Using an emoji for simplicity, can be replaced with an SVG */
+        }
+
+        /* DETAILS (Distance & Availability) */
+        .details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: #7f8c8d; /* Grey text */
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        /* --- BUTTON --- */
+        .view-btn {
+            width: 100%;
+            background-color: #4a90e2; /* Blue */
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .view-btn:hover {
+            background-color: #357abd;
+        }
+
+        /* --- RESPONSIVE TWEAKS --- */
+        /* Ensure it looks good on smaller phones */
+        @media (max-width: 380px) {
+            .nanny-card {
+                padding: 20px;
             }
-            
             .profile-pic {
-                margin-bottom: 12px;
-                width: 60px; height: 60px;
+                width: 90px;
+                height: 90px;
             }
-
-            .card-content { width: 100%; margin-bottom: 15px; }
-            .card-action { margin-left: 0; width: 100%; }
-            .view-btn { display: block; text-align: center; width: auto; }
-            
-            .sort-wrapper { justify-content: flex-start; padding-left: 5px; }
+            .name-age {
+                font-size: 1.25rem;
+                margin-top: 20px;
+            }
+            .rate {
+                font-size: 1rem;
+            }
         }
-
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-area">
-        <h1 id="header-title">Your Matches</h1>
-        <p class="subtitle">We found the best nannies for your family</p>
-        
-        <div class="sort-wrapper">
-            <button class="sort-btn active" onclick="sortData('match')">Overall Match</button>
-            <button class="sort-btn" onclick="sortData('avail')">Availability</button>
-            <button class="sort-btn" onclick="sortData('dist')">Distance</button>
-            <button class="sort-btn" onclick="sortData('rate')">Rate ($)</button>
-            <button class="sort-btn" onclick="sortData('rank')">⭐ Rank</button>
-        </div>
-    </div>
+    <div class="nanny-card">
+        <div class="card-top">
+            <div class="profile-pic-container">
+                <img src="https://i.imgur.com/8Q5X8Q1.png" alt="Maya" class="profile-pic">
+            </div>
 
-    <div id="loading-state">
-        <div class="spinner"></div>
-        <div>Calculating scores...</div>
-    </div>
-    <div id="error-state"></div>
-
-    <div id="results-list"></div>
-</div>
-
-<script>
-    // ================= SETTINGS =================
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzj2SuqYs0YD3KdAlhtdzrh3tayRPF2y2Syn5dfPSMsgaKCV3FtNPIEGshJPZUKjwDMUg/exec";
-    const PROFILE_BASE = "https://babybloomsydney.com.au/nannies";
-    // ============================================
-
-    // Store data globally so we can sort without re-fetching
-    let globalNannies = [];
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        const params = new URLSearchParams(window.location.search);
-        const cid = params.get('cid');
-        const mode = params.get('mode');
-
-        if (!cid) { showError("No Contact ID found."); return; }
-
-        try {
-            const resp = await fetch(GAS_URL, {
-                method: "POST",
-                redirect: "follow",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ "contactId": cid, "action": "MM", "mode": mode })
-            });
-            const data = await resp.json();
-
-            if (data.error) { showError(data.error); return; }
-
-            globalNannies = data.i || data.matches || data.items || [];
-            
-            if (globalNannies.length === 0) { showError("No matches found."); return; }
-
-            // Update Header Count
-            document.getElementById('header-title').innerText = `Your Top ${globalNannies.length} Matches`;
-
-            // Initial Render
-            renderNannies(globalNannies);
-
-        } catch (e) {
-            showError("Connection error. Please refresh.");
-        }
-    });
-
-    // --- SORTING LOGIC ---
-    function sortData(criteria) {
-        // Visual Update
-        document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-
-        // Logic
-        let sorted = [...globalNannies]; 
-        
-        // Helper to convert rate strings like "$35.00" to number 35.00
-        const getPrice = (v) => parseFloat(String(v).replace(/[^0-9.]/g, '')) || 0;
-
-        if (criteria === 'match') {
-            sorted.sort((a, b) => b.s - a.s); 
-        } else if (criteria === 'avail') {
-            sorted.sort((a, b) => b.a - a.a); 
-        } else if (criteria === 'dist') {
-            sorted.sort((a, b) => a.d - b.d); 
-        } else if (criteria === 'rate') {
-            // Sort by cleaned numeric price
-            sorted.sort((a, b) => getPrice(a.r) - getPrice(b.r)); 
-        } else if (criteria === 'rank') {
-            sorted.sort((a, b) => b.b - a.b); 
-        }
-
-        renderNannies(sorted);
-    }
-
-    // --- RENDERING ---
-    function renderNannies(list) {
-        const container = document.getElementById('results-list');
-        const loader = document.getElementById('loading-state');
-        
-        loader.style.display = 'none';
-        container.innerHTML = ""; 
-        
-        list.forEach(n => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            
-            const img = n.pp ? n.pp : "https://via.placeholder.com/70?text=IMG";
-            const name = n.fn || "Nanny";
-            const age = n.ag ? `, ${n.ag}` : "";
-            
-            // LOGIC FIX: Strip existing $ sign if present, then add our own
-            const rawRate = String(n.r || "");
-            const cleanRate = rawRate.replace('$', ''); 
-            const rateStr = cleanRate ? `$${cleanRate}/hr` : "N/A";
-
-            // --- HTML STRUCTURE ---
-            card.innerHTML = `
-                <img src="${img}" alt="${name}" class="profile-pic">
+            <div class="info-block">
+                <div class="rate">$49/hr</div>
                 
-                <div class="card-content">
-                    <div class="line-primary">
-                        ${name}${age}
-                        <span class="match-tag">${n.s}% Match</span>
-                    </div>
-
-                    <div class="line-secondary">
-                        ${n.a}% availability, ${n.d}km from you, <span class="highlight-rate">${rateStr}</span><br>
-                        <span class="highlight-rank">${n.b}⭐ Exceeds Requirement</span>
-                    </div>
+                <div class="name-age">
+                    Maya, 39
+                    <span class="match-badge">91% Match</span>
                 </div>
-
-                <div class="card-action">
-                    <a href="${PROFILE_BASE}" class="view-btn">View Profile</a>
+                
+                <div class="rank">
+                    <span class="star-icon">⭐</span>
+                    10 Exceeds Requirement
                 </div>
-            `;
-            container.appendChild(card);
-        });
+                
+                <div class="details">
+                    <div>8.3km from you</div>
+                    <div>100% availability</div>
+                </div>
+            </div>
+        </div>
 
-        container.style.display = 'flex';
-    }
-
-    function showError(msg) {
-        document.getElementById('loading-state').style.display = 'none';
-        const el = document.getElementById('error-state');
-        el.innerText = msg;
-        el.style.display = 'block';
-    }
-</script>
+        <a href="#" class="view-btn">View Profile</a>
+    </div>
 
 </body>
 </html>
