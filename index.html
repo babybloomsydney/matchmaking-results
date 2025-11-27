@@ -29,7 +29,6 @@
         }
 
         .container {
-            /* Changed: Larger max-width for desktop to prevent squishing */
             max-width: 800px; 
             margin: 0 auto;
         }
@@ -43,12 +42,11 @@
         h1 { margin: 0; font-size: 1.8rem; color: var(--text-main); font-weight: 700; }
         .subtitle { color: var(--text-sub); margin: 5px 0 20px 0; font-size: 1rem; }
 
-        /* The Slider Sort Bar - FIXED to fit on one line */
+        /* Sort Bar */
         .sort-wrapper {
             display: flex;
-            gap: 8px; /* Reduced gap */
+            gap: 8px; 
             padding-bottom: 10px;
-            /* Changed: No overflow, center alignment, allow wrap on tiny screens if needed */
             flex-wrap: wrap; 
             justify-content: center;
         }
@@ -56,7 +54,6 @@
         .sort-btn {
             background: white;
             border: 1px solid #e1e4e8;
-            /* Changed: Smaller padding and font size to fit */
             padding: 8px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
@@ -88,7 +85,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #error-state { display: none; background: #fadbd8; color: #c0392b; padding: 15px; border-radius: 8px; text-align: center; }
 
-        /* --- 4. THE CARD (LAYOUT FIXED) --- */
+        /* --- 4. THE CARD --- */
         #results-list {
             display: none;
             flex-direction: column;
@@ -104,18 +101,17 @@
             position: relative; 
             display: flex;
             flex-direction: column;
-            gap: 24px; /* Increased gap between top section and button */
+            gap: 24px; 
         }
 
         /* Top Section: Image + Info */
         .card-top {
             display: flex;
             align-items: flex-start;
-            gap: 24px; /* Increased gap */
-            padding-right: 60px; /* Ensure space for the absolute rate */
+            gap: 24px;
+            padding-right: 60px; /* Space for Rate on Desktop */
         }
 
-        /* Profile Pic - Changed: Larger Size */
         .profile-pic {
             width: 120px; 
             height: 120px;
@@ -126,35 +122,33 @@
             flex-shrink: 0;
         }
 
-        /* Info Block */
         .card-info {
             display: flex;
             flex-direction: column;
-            gap: 8px; /* Increased gap between lines */
+            gap: 8px; 
             padding-top: 5px; 
             flex-grow: 1;
         }
 
-        /* Rate (Absolute Top Right) - Fixed position */
+        /* Rate (Desktop: Top Right) */
         .rate-text {
             position: absolute;
             top: 24px;
             right: 24px;
-            font-size: 1.2rem; /* Slightly larger */
+            font-size: 1.2rem; 
             font-weight: 700;
             color: var(--text-main);
         }
 
-        /* Name Row - Fixed: Ensures single line layout */
         .name-row {
             display: flex;
             align-items: center;
-            flex-wrap: wrap; /* Allow wrap only on tiny screens */
+            flex-wrap: wrap; 
             gap: 10px;
         }
         
         .nanny-name {
-            font-size: 1.4rem; /* Larger name */
+            font-size: 1.4rem; 
             font-weight: 700;
             color: var(--text-main);
             margin: 0;
@@ -168,23 +162,21 @@
             font-weight: 700;
             padding: 4px 12px;
             border-radius: 12px;
-            white-space: nowrap; /* Prevents wrapping inside badge */
+            white-space: nowrap; 
         }
 
-        /* Rank Row - Changed: Smaller font to fit on one line */
         .rank-row {
             display: flex;
             align-items: center;
             gap: 6px;
             color: var(--star);
             font-weight: 600;
-            font-size: 0.9rem; /* Smaller font */
+            font-size: 0.9rem; 
         }
 
-        /* Details Row - Changed: Smaller font */
         .details-block {
             color: var(--text-sub);
-            font-size: 0.85rem; /* Smaller font */
+            font-size: 0.85rem; 
             line-height: 1.5;
             display: flex;
             flex-direction: column;
@@ -209,14 +201,56 @@
 
         .view-btn:hover { background-color: var(--secondary-hover); }
 
-        /* Responsive Adjustments for smaller Mobile */
-        @media (max-width: 480px) {
-            .card { padding: 20px; gap: 20px; }
-            .card-top { gap: 15px; padding-right: 0; } /* Remove padding, rate will sit above */
-            .profile-pic { width: 90px; height: 90px; }
-            .rate-text { position: static; text-align: right; margin-bottom: 10px; } /* Rate flows normally on small mobile */
-            .nanny-name { font-size: 1.25rem; }
-            .name-row { gap: 8px; }
+        /* --- MOBILE OPTIMIZATION (Max-width: 500px) --- */
+        @media (max-width: 500px) {
+            
+            h1 { font-size: 1.5rem; }
+
+            .card {
+                /* Add top padding to create a "Header" row for Badge/Rate */
+                padding: 16px;
+                padding-top: 55px; 
+                gap: 15px;
+            }
+
+            .card-top {
+                gap: 15px;
+                padding-right: 0; /* Remove desktop padding */
+            }
+
+            .profile-pic {
+                width: 80px; 
+                height: 80px;
+            }
+
+            /* --- MOBILE HEADER ROW --- */
+            
+            /* 1. Move Badge to Top Left */
+            .match-badge {
+                position: absolute;
+                top: 16px;
+                left: 16px;
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
+
+            /* 2. Move Rate to Top Right */
+            .rate-text {
+                top: 16px;
+                right: 16px;
+                font-size: 1rem; /* Smaller size as requested */
+            }
+
+            /* --- TEXT SIZING --- */
+            .nanny-name { font-size: 1.15rem; } /* Reduce Name */
+            .rank-row { font-size: 0.8rem; }    /* Reduce Rank text */
+            .details-block { font-size: 0.8rem; } /* Reduce Details */
+            
+            .card-info { gap: 4px; padding-top: 0; }
+            .name-row { gap: 5px; }
+
+            /* Button Sizing */
+            .view-btn { padding: 12px; font-size: 0.95rem; }
         }
 
     </style>
@@ -233,7 +267,7 @@
             <button class="sort-btn" onclick="sortData('avail')">Availability</button>
             <button class="sort-btn" onclick="sortData('dist')">Distance</button>
             <button class="sort-btn" onclick="sortData('rate')">Rate ($)</button>
-            <button class="sort-btn" onclick="sortData('rank')">⭐ Rank</button>
+            <button class="sort-btn" onclick="sortData('rank')">⭐</button>
         </div>
     </div>
 
@@ -252,7 +286,6 @@
     const PROFILE_BASE = "https://babybloomsydney.com.au/nannies";
     // ============================================
 
-    // Store data globally so we can sort without re-fetching
     let globalNannies = [];
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -273,15 +306,12 @@
 
             if (data.error) { showError(data.error); return; }
 
-            // Normalize data structure
             globalNannies = data.i || data.matches || data.items || [];
             
             if (globalNannies.length === 0) { showError("No matches found."); return; }
 
-            // Update Header Count
             document.getElementById('header-title').innerText = `Your Top ${globalNannies.length} Matches`;
 
-            // Initial Render
             renderNannies(globalNannies);
 
         } catch (e) {
@@ -289,29 +319,19 @@
         }
     });
 
-    // --- SORTING LOGIC ---
+    // --- SORTING ---
     function sortData(criteria) {
-        // Visual: Update active button
         document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
 
-        // Logic: Sort the global array
         let sorted = [...globalNannies]; 
-        
-        // Helper to convert rate strings like "$35.00" to number 35.00
         const getPrice = (v) => parseFloat(String(v).replace(/[^0-9.]/g, '')) || 0;
 
-        if (criteria === 'match') {
-            sorted.sort((a, b) => b.s - a.s); 
-        } else if (criteria === 'avail') {
-            sorted.sort((a, b) => b.a - a.a); 
-        } else if (criteria === 'dist') {
-            sorted.sort((a, b) => a.d - b.d); 
-        } else if (criteria === 'rate') {
-            sorted.sort((a, b) => getPrice(a.r) - getPrice(b.r)); 
-        } else if (criteria === 'rank') {
-            sorted.sort((a, b) => b.b - a.b); 
-        }
+        if (criteria === 'match') sorted.sort((a, b) => b.s - a.s); 
+        else if (criteria === 'avail') sorted.sort((a, b) => b.a - a.a); 
+        else if (criteria === 'dist') sorted.sort((a, b) => a.d - b.d); 
+        else if (criteria === 'rate') sorted.sort((a, b) => getPrice(a.r) - getPrice(b.r)); 
+        else if (criteria === 'rank') sorted.sort((a, b) => b.b - a.b); 
 
         renderNannies(sorted);
     }
@@ -320,7 +340,6 @@
     function renderNannies(list) {
         const container = document.getElementById('results-list');
         const loader = document.getElementById('loading-state');
-        
         loader.style.display = 'none';
         container.innerHTML = ""; 
         
@@ -332,7 +351,6 @@
             const name = n.fn || "Nanny";
             const age = n.ag ? `, ${n.ag}` : "";
             
-            // Logic: Rate processing
             const rawRate = String(n.r || "");
             const cleanRate = rawRate.replace('$', ''); 
             const rateStr = cleanRate ? `$${cleanRate}/hr` : "";
@@ -341,28 +359,35 @@
             card.innerHTML = `
                 <div class="rate-text">${rateStr}</div>
 
+                <div class="match-badge mobile-only-badge" style="display:none;">${n.s}% Match</div>
+
                 <div class="card-top">
                     <img src="${img}" alt="${name}" class="profile-pic">
                     
                     <div class="card-info">
                         <div class="name-row">
                             <span class="nanny-name">${name}${age}</span>
-                            <span class="match-badge">${n.s}% Match</span>
+                            <span class="match-badge desktop-badge">${n.s}% Match</span>
                         </div>
 
                         <div class="rank-row">
-                            ${n.b}⭐ Exceeds Requirement
+                            ${n.b}⭐ Over-qualified
                         </div>
 
                         <div class="details-block">
                             <div>${n.d}km from you</div>
-                            <div>${n.a}% availability</div>
+                            <div>${n.a}% schedule match</div>
                         </div>
                     </div>
                 </div>
 
                 <a href="${PROFILE_BASE}" class="view-btn">View Profile</a>
             `;
+            
+            // NOTE: On Mobile, CSS moves .desktop-badge to display:none and we use absolute positioning for the badge.
+            // However, to keep HTML clean, we are using the same element .match-badge and just moving it via CSS. 
+            // The CSS 'position: absolute' removes it from the flow automatically.
+            
             container.appendChild(card);
         });
 
